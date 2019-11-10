@@ -121,8 +121,8 @@ function gradientgambler(N=10, steps=1000; α=1/4, introspect=false)
     Rₜ, Oₜ
 end
 
-plot(mean(cumsum(last(gradientgambler(10, 10^4, α=1/4)))
-          ./ collect(1:10^4) for _ in 1:10), label="gradient")
+results = cumsum(last(gradientgambler(10, 10^4, α=1/4))) ./ collect(1:10^4) for _ in 1:10)
+plot(mean(results), label="gradient")
 
 # ■ E2.11
 L = 200_000
@@ -130,7 +130,7 @@ params = [1//128, 1//64, 1//32, 1//16, 1//8, 1//4, 1//2, 1, 2, 4, 6, 8]
 
 macro bench(fn, param)
     # average reward from last 100000 steps over 100 runs over the parameter space
-    :([mean(mean(first($fn(10, L, $param=ξ))[end-L÷2+1:end]) for _ in 1:50) for ξ in params])
+    :([mean(mean(first($fn(10, L, $param=param))[end-L÷2+1:end]) for _ in 1:50) for param in params])
 end
 
 plot(params, @bench(gambler, ε), label="greedy", xscale=:log, xticks=(params, map(string, params)), legend=:bottomleft)
