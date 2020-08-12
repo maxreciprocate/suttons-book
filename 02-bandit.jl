@@ -1,4 +1,3 @@
-# ■ {Sutton 2018} E2.5-10
 using Statistics, Distributions, StatsPlots
 
 # ■ k-bandit arms

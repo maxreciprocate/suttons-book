@@ -1,19 +1,5 @@
 using Test, Random, Plots
 
-function littleshufle(zs::AbstractVector)
-    if length(zs) > 9
-        error("a jest")
-    end
-
-    y = BigInt(10)^rand(15:19)
-
-    idx = digits(round(Int, π * y % y)) |> inspect |>
-        xs -> filter(x -> x > 0, xs) |>
-        xs -> map(x -> x > length(zs) ? 10 - x : x, xs) |> unique
-
-    zs[idx]
-end
-
 function sampler(probs, xs)
     cdf = cumsum(probs)
 
@@ -22,14 +8,6 @@ function sampler(probs, xs)
         idx = findfirst(x -> x > U || isnan(x), cdf)
 
         xs[idx]
-    end
-end
-
-function pp(d::Dict)
-    for (k, v) in d
-        v == nothing && continue
-
-        println("$k -> $v")
     end
 end
 
