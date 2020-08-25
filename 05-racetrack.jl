@@ -17,19 +17,19 @@ mutable struct Racetrack <: AbstractEnv
     velocity::Vector{Int}
     reward::Float64
 
-    Racetrack(s, f, w, gd) = new(s, f, w, gd, deepcopy(rand(s)), zeros(2), 0.0)
+    Racetrack(s, f, w, gd) = new(s, f, w, gd, copy(rand(s)), zeros(2), 0.0)
 end
 
-RLBase.get_actions(::Racetrack) = action_space
+RLBase.get_actions(::Racetrack) = DiscreteSpace(4)
 RLBase.get_reward(env::Racetrack) = env.reward
 RLBase.get_terminal(env::Racetrack) = env.position in env.finishline
-RLBase.get_state(env::Racetrack) = env.position
+RLBase.get_state(env::Racetrack) = copy(env.position)
 
 function RLBase.reset!(env::Racetrack)
     env.reward = 0.0
     fill!(env.velocity, 0)
 
-    env.position = deepcopy(rand(env.startline))
+    env.position = copy(rand(env.startline))
 end
 
 function (env::Racetrack)(action::Int)
@@ -42,7 +42,7 @@ function (env::Racetrack)(action::Int)
 
     while true
         if env.position ∈ env.walls
-            env.position = deepcopy(rand(env.startline))
+            env.position = copy(rand(env.startline))
             fill!(env.velocity, 0)
 
             break
@@ -62,6 +62,11 @@ function (env::Racetrack)(action::Int)
             speed_y -= sign(speed_y)
         else
             break
+        end
+
+        # racing is hard
+        if rand() < 0.1
+            fill!(env.velocity, 0)
         end
     end
 
@@ -103,6 +108,7 @@ function Racetrack()
 
     walls = vcat(
         [[0, i] for i = 1:NY],
+        [[i, 0] for i = 1:NX], # safety net
         [[NX+1, i] for i = 1:NY]
     )
 
