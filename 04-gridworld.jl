@@ -12,7 +12,8 @@ function sampler(probs, xs)
 end
 
 # ■ Value iteration with Q-convergence
-N = 48
+N = 50
+
 kernel = [[0, 1], [0, -1], [1, 0], [-1, 0]]
 block  = [[i, j] for i in 1:N, j in 1:N]
 
@@ -20,10 +21,11 @@ block  = [[i, j] for i in 1:N, j in 1:N]
 A = map(x -> filter(c -> 1 <= c[1] <= N && 1 <= c[2] <= N, map(cell -> cell + x, kernel)), block)
 # ways out
 A[N ÷ 2 + 1, N ÷ 2 + 1] = A[1, 1] = A[N, N] = A[1, N] = A[N, 1] = []
+
 # random policy
 P = map(x -> if isempty(x) nothing else rand(x) end, A)
-# empty values
-V = zeros(Float64, N, N)
+
+V = zeros(N, N)
 Q = map(x -> zeros(length(x)), A)
 # discount
 γ = .97
@@ -46,7 +48,7 @@ while true
     end
 
     # check convergence
-    _Q = deepcopy(Q)
+    _Q = copy(Q)
 
     for i in CartesianIndices(A)
         isempty(A[i]) && continue

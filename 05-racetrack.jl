@@ -17,16 +17,22 @@ mutable struct Racetrack <: AbstractEnv
     velocity::Vector{Int}
     reward::Float64
 
-    Racetrack(s, f, w, gd) = new(s, f, w, gd, copy(rand(s)), zeros(2), 0.0)
+    Racetrack(s, f, w, gd) = new(s, f, w, gd, copy(rand(s)), zeros(2), -1)
 end
 
-RLBase.get_actions(::Racetrack) = DiscreteSpace(4)
+RLBase.get_action_space(::Racetrack) = DiscreteSpace(4)
 RLBase.get_reward(env::Racetrack) = env.reward
 RLBase.get_terminal(env::Racetrack) = env.position in env.finishline
 RLBase.get_state(env::Racetrack) = copy(env.position)
+RLBase.get_observation_space(env::Racetrack) = DiscreteSpace(1:prod(env.griddims))
+
+function RLBase.observe(env::Racetrack)
+    return ( state = copy(env.position),
+             reward = env.reward,
+             terminal = env.position in env.finishline )
+end
 
 function RLBase.reset!(env::Racetrack)
-    env.reward = 0.0
     fill!(env.velocity, 0)
 
     env.position = copy(rand(env.startline))
@@ -36,7 +42,7 @@ function (env::Racetrack)(action::Int)
     accel_x, accel_y = action_space[action]
     speed_x, speed_y = env.velocity
 
-    # update actual velocity from the acceleration for the next step
+    # update the actual velocity from the acceleration for the next step
     env.velocity[1] = min(max(speed_x + accel_x, -3), 3)
     env.velocity[2] = min(max(speed_y + accel_y, -3), 3)
 
@@ -70,8 +76,6 @@ function (env::Racetrack)(action::Int)
         end
     end
 
-    env.reward -= 1
-
     nothing
 end
 
@@ -102,6 +106,7 @@ end
 function Racetrack()
     NY = 20
     NX = 10
+
     # trivial setup for starters
     startline = [[i, 1] for i = 1:NX]
     finishline = [[i, NY] for i = 1:NX]

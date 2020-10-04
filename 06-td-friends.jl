@@ -155,7 +155,7 @@ truthV = [i/6 for i = 1:5]
 
 rms_errors = []
 
-for episode = 1:200
+for episode = 1:10
     reset!(env)
     s = env.state
 

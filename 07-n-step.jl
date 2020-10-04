@@ -88,7 +88,7 @@ Q = rand(na, nobs) * 0.01
 γ = 0.9
 n = 7
 
-for episode = 1:100
+for episode = 1:20
     reset!(env)
 
     S = [get_state(env)]
@@ -96,7 +96,7 @@ for episode = 1:100
     R = Float64[]
     T = Int(1e12)
 
-    for t = 1:100
+    for t = 1:200
         if t < T
             env(A[t])
 
@@ -140,7 +140,6 @@ end
 
 (Q[:, end-8:end-1]) |> display
 (Q[1, 2:end-1] .> Q[2, 2:end-1]) |> display
-# ■ eval
 
 reset!(env)
 
